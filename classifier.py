@@ -101,7 +101,7 @@ model.compile(optimizer= Adam(),
               metrics=['accuracy'])
 
 # Train Model
-epochs = 75
+epochs = 25
 history = model.fit(
   train_ds,
   validation_data=val_ds,
