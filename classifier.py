@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import layers
+from keras.optimizers import Adam
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 
@@ -19,9 +20,9 @@ image_count = len(list(data_dir.glob('*/*.jpg')))
 print(image_count)
 
 # Create a dataset
-batch_size = 32
-img_height = 400
-img_width = 400
+batch_size = 100
+img_height = 300
+img_width = 300
 
 # 80/20 validation split
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -43,6 +44,13 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
 # Print class names
 class_names = train_ds.class_names
 print(class_names)
+
+    
+# Training batches
+for image_batch, labels_batch in train_ds:
+  print(image_batch.shape)
+  print(labels_batch.shape)
+  break
 
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -88,14 +96,12 @@ model = Sequential([
 ])
 
 # Compile model
-model.compile(optimizer='adam',
+model.compile(optimizer= Adam(),
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-model.summary()
-
 # Train Model
-epochs = 50
+epochs = 75
 history = model.fit(
   train_ds,
   validation_data=val_ds,
