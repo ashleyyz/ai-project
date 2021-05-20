@@ -19,9 +19,9 @@ image_count = len(list(data_dir.glob('*/*.jpg')))
 print(image_count)
 
 # Create a dataset
-batch_size = 16
-img_height = 200
-img_width = 200
+batch_size = 32
+img_height = 400
+img_width = 400
 
 # 80/20 validation split
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -43,21 +43,6 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
 # Print class names
 class_names = train_ds.class_names
 print(class_names)
-
-# Visualize data
-plt.figure(figsize=(10, 10))
-for images, labels in train_ds.take(1):
-  for i in range(9):
-    ax = plt.subplot(3, 3, i + 1)
-    plt.imshow(images[i].numpy().astype("uint8"))
-    plt.title(class_names[labels[i]])
-    plt.axis("off")
-    
-# Training batches
-for image_batch, labels_batch in train_ds:
-  print(image_batch.shape)
-  print(labels_batch.shape)
-  break
 
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -110,7 +95,7 @@ model.compile(optimizer='adam',
 model.summary()
 
 # Train Model
-epochs = 25
+epochs = 50
 history = model.fit(
   train_ds,
   validation_data=val_ds,
@@ -141,61 +126,53 @@ plt.title('Training and Validation Loss')
 plt.show()
 
 # Save Model
-model.save("pokemon_model")
+model.save("saved_model")
 del model
 
-model = load_model('pokemon_model')
+model = load_model('saved_model')
 
-# Piplup Test
-piplup_url = "https://static.wixstatic.com/media/2e36a5_effd17ea4d0d4c3fafbb6f131a0dd186~mv2.jpg/v1/fill/w_760,h_428,al_c,q_90/2e36a5_effd17ea4d0d4c3fafbb6f131a0dd186~mv2.jpg"
-piplup_path = tf.keras.utils.get_file('2e36a5_effd17ea4d0d4c3fafbb6f131a0dd186~mv2', origin=piplup_url)
+tennis_url = "https://github.com/ashleyyz/ai-project/raw/master/tennis-racket.jpg"
+tennis_path = tf.keras.utils.get_file('tennis-racket', origin=tennis_url)
+baddy_url = "https://github.com/ashleyyz/ai-project/raw/master/badminton-racket.jpg"
+baddy_path = tf.keras.utils.get_file('badminton-racket', origin=baddy_url)
+squash_url = "https://github.com/ashleyyz/ai-project/raw/master/squash-racket.jpg"
+squash_path = tf.keras.utils.get_file('squash-racket', origin=squash_url)
 
-img = keras.preprocessing.image.load_img(
-    piplup_path, target_size=(img_height, img_width)
+tennis_img = keras.preprocessing.image.load_img(
+    tennis_path, target_size=(img_height, img_width)
 )
-img_array = keras.preprocessing.image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0) # Create a batch
+tennis_img_array = keras.preprocessing.image.img_to_array(tennis_img)
+tennis_img_array = tf.expand_dims(tennis_img_array, 0) # Create a batch
 
-predictions = model.predict(img_array)
-score = tf.nn.softmax(predictions[0])
+baddy_img = keras.preprocessing.image.load_img(
+    baddy_path, target_size=(img_height, img_width)
+)
+baddy_img_array = keras.preprocessing.image.img_to_array(baddy_img)
+baddy_img_array = tf.expand_dims(baddy_img_array, 0) # Create a batch
 
+squash_img = keras.preprocessing.image.load_img(
+    squash_path, target_size=(img_height, img_width)
+)
+squash_img_array = keras.preprocessing.image.img_to_array(squash_img)
+squash_img_array = tf.expand_dims(squash_img_array, 0) # Create a batch
+
+tennis_predictions = model.predict(tennis_img_array)
+tennis_score = tf.nn.softmax(tennis_predictions[0])
 print(
-    "This Piplup most likely belongs to {} with a {:.2f} percent confidence."
-    .format(class_names[np.argmax(score)], 100 * np.max(score))
+    "This is a {} racket with a {:.2f} percent confidence."
+    .format(class_names[np.argmax(tennis_score)], 100 * np.max(tennis_score))
 )
 
-# Litwick Test
-litwick_url = "https://i.pinimg.com/originals/71/4c/94/714c942405dd3f487b50e86a30a9e1fe.jpg"
-litwick_path = tf.keras.utils.get_file('714c942405dd3f487b50e86a30a9e1fe', origin=litwick_url)
-
-img = keras.preprocessing.image.load_img(
-    litwick_path, target_size=(img_height, img_width)
-)
-img_array = keras.preprocessing.image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0) # Create a batch
-
-predictions = model.predict(img_array)
-score = tf.nn.softmax(predictions[0])
-
+baddy_predictions = model.predict(baddy_img_array)
+baddy_score = tf.nn.softmax(baddy_predictions[0])
 print(
-    "This Blazekin most likely belongs to {} with a {:.2f} percent confidence."
-    .format(class_names[np.argmax(score)], 100 * np.max(score))
+    "This is a {} racket with a {:.2f} percent confidence."
+    .format(class_names[np.argmax(baddy_score)], 100 * np.max(baddy_score))
 )
 
-# Shaymin Test
-shaymin_url = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/08cb8003-d697-4d4d-9f14-4bbc8ea9c929/d35vwgn-bcc0850e-2c51-4c97-a4ee-3706afff9fa9.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwic3ViIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsImF1ZCI6WyJ1cm46c2VydmljZTpmaWxlLmRvd25sb2FkIl0sIm9iaiI6W1t7InBhdGgiOiIvZi8wOGNiODAwMy1kNjk3LTRkNGQtOWYxNC00YmJjOGVhOWM5MjkvZDM1dndnbi1iY2MwODUwZS0yYzUxLTRjOTctYTRlZS0zNzA2YWZmZjlmYTkuanBnIn1dXX0.VMxLNS_0E52xJcod3rk3xZcwU5GFDHAagA5hW4WEcHY"
-shaymin_path = tf.keras.utils.get_file('d35vwgn-bcc0850e-2c51-4c97-a4ee-3706afff9fa9', origin=shaymin_url)
-
-img = keras.preprocessing.image.load_img(
-    shaymin_path, target_size=(img_height, img_width)
-)
-img_array = keras.preprocessing.image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0) # Create a batch
-
-predictions = model.predict(img_array)
-score = tf.nn.softmax(predictions[0])
-
+squash_predictions = model.predict(squash_img_array)
+squash_score = tf.nn.softmax(squash_predictions[0])
 print(
-    "This Grass-Type most likely belongs to {} with a {:.2f} percent confidence."
-    .format(class_names[np.argmax(score)], 100 * np.max(score))
+    "This is a {} racket with a {:.2f} percent confidence."
+    .format(class_names[np.argmax(squash_score)], 100 * np.max(squash_score))
 ) 
