@@ -20,9 +20,9 @@ image_count = len(list(data_dir.glob('*/*.jpg')))
 print(image_count)
 
 # Create a dataset
-batch_size = 100
-img_height = 300
-img_width = 300
+batch_size = 64
+img_height = 500
+img_width = 500
 
 # 80/20 validation split
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -164,21 +164,31 @@ squash_img_array = tf.expand_dims(squash_img_array, 0) # Create a batch
 
 tennis_predictions = model.predict(tennis_img_array)
 tennis_score = tf.nn.softmax(tennis_predictions[0])
-print(
+baddy_predictions = model.predict(baddy_img_array)
+baddy_score = tf.nn.softmax(baddy_predictions[0])
+squash_predictions = model.predict(squash_img_array)
+squash_score = tf.nn.softmax(squash_predictions[0])
+
+plt.figure(figsize=(4, 4))
+plt.imshow(tennis_img)
+plt.title(
     "This is a {} racket with a {:.2f} percent confidence."
     .format(class_names[np.argmax(tennis_score)], 100 * np.max(tennis_score))
 )
+plt.axis("off")
 
-baddy_predictions = model.predict(baddy_img_array)
-baddy_score = tf.nn.softmax(baddy_predictions[0])
-print(
+plt.figure(figsize=(4, 4))
+plt.imshow(baddy_img)
+plt.title(
     "This is a {} racket with a {:.2f} percent confidence."
     .format(class_names[np.argmax(baddy_score)], 100 * np.max(baddy_score))
 )
+plt.axis("off")
 
-squash_predictions = model.predict(squash_img_array)
-squash_score = tf.nn.softmax(squash_predictions[0])
-print(
+plt.figure(figsize=(4, 4))
+plt.imshow(squash_img)
+plt.title(
     "This is a {} racket with a {:.2f} percent confidence."
     .format(class_names[np.argmax(squash_score)], 100 * np.max(squash_score))
 ) 
+plt.axis("off")
